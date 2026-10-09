@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cloud AI</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #666;
+        }
+
+        input {
+            margin: 20px 0;
+        }
+
+        button {
+            background: #222;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #444;
+        }
+
+        #result {
+            margin-top: 25px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🤖هوش مصنوعی تشخیص اشیا</h1>
+
+    <p>عکس را آپلود کنید </p>
+
+    <input type="file" id="imageInput" accept="image/*">
+
+    <br>
+
+    <button onclick="analyzeImage()">
+       پردازش
+    </button>
+
+    <div id="result"></div>
+
+</div>
+<script>
+async function analyzeImage() {
+
+    const input = document.getElementById("imageInput");
+    const result = document.getElementById("result");
+
+    if (!input.files.length) {
+        result.innerText = "Please select an image first.";
+        return;
+    }
+
+    const file = input.files[0];
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    result.innerText = "Analyzing... 🤖";
+
+    try {
+
+        const response = await fetch("/predict", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.prediction) {
+
+            result.innerHTML = `
+                <strong>Prediction:</strong> ${data.prediction}<br>
+                <strong>Confidence:</strong> ${data.confidence}%
+            `;
+
+        } else {
+
+            result.innerText = "Something went wrong.";
+
+        }
+
+    } catch (error) {
+
+        result.innerText = "Could not connect to the server.";
+
+    }
+}
+</script>
+</body>
+</html>
